@@ -2,7 +2,7 @@
 Lenpaste is a web service that allows you to share notes anonymously, an alternative to pastebin.com.
 
 Features
-- - No need to register
+- No need to register
 - Supports multiple languages
 - Uses cookies only to store settings
 - Can work without JavaScript
