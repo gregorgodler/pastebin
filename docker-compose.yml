@@ -1,0 +1,56 @@
+version: "2"
+
+services:
+  lenpaste:
+    image: git.lcomrade.su/root/lenpaste:latest
+    container_name: pastebin
+    restart: always
+    environment:
+      # All parameters are optional
+      #
+      # HTTP server
+      - LENPASTE_ADDRESS=:80                  # ADDRES:PORT for HTTP server.
+      #
+      # Database settings
+      - LENPASTE_DB_DRIVER=sqlite3            # Currently supported drivers: 'sqlite3' and 'postgres'.
+      - LENPASTE_DB_SOURCE=/data/lenpaste.db  # DB source.
+      - LENPASTE_DB_MAX_OPEN_CONNS=25         # Maximum number of connections to the database.
+      - LENPASTE_DB_MAX_IDLE_CONNS=5          # Maximum number of idle connections to the database.
+      - LENPASTE_DB_CLEANUP_PERIOD=3h         # Interval at which the DB is cleared of expired but not yet deleted pastes.
+      #
+      # Search engines
+      - LENPASTE_ROBOTS_DISALLOW=true        # Prohibits search engine crawlers from indexing site using robots.txt file.
+      #
+      # Storage limits
+      - LENPASTE_TITLE_MAX_LENGTH=100         # Maximum length of the paste title. If 0 disable title, if -1 disable length limit.
+      - LENPASTE_BODY_MAX_LENGTH=20000        # Maximum length of the paste body. If -1 disable length limit. Can't be -1.
+      - LENPASTE_MAX_PASTE_LIFETIME=unlimited # Maximum lifetime of the paste. Examples: 10m, 1h 30m, 12h, 7w, 30d, 365d.
+      #
+      # Rate limits
+      - LENPASTE_GET_PASTES_PER_5MIN=50       # Maximum number of pastes that can be VIEWED in 5 minutes from one IP. If 0 disable rate-limit.
+      - LENPASTE_GET_PASTES_PER_15MIN=100     # Maximum number of pastes that can be VIEWED in 15 minutes from one IP. If 0 disable rate-limit.
+      - LENPASTE_GET_PASTES_PER_1HOUR=500     # Maximum number of pastes that can be VIEWED in 1 hour from one IP. If 0 disable rate-limit.
+      - LENPASTE_NEW_PASTES_PER_5MIN=15       # Maximum number of pastes that can be CREATED in 5 minutes from one IP. If 0 disable rate-limit.
+      - LENPASTE_NEW_PASTES_PER_15MIN=30      # Maximum number of pastes that can be CREATED in 15 minutes from one IP. If 0 disable rate-limit.
+      - LENPASTE_NEW_PASTES_PER_1HOUR=40      # Maximum number of pastes that can be CREATED in 1 hour from one IP. If 0 disable rate-limit.
+      #
+      # Information about server admin
+      - LENPASTE_ADMIN_NAME=                  # Name of the administrator of this server.
+      - LENPASTE_ADMIN_MAIL=                  # Email of the administrator of this server.
+      #
+      # WEB interface settings
+      - LENPASTE_UI_DEFAULT_LIFETIME=         # Lifetime of paste will be set by default in WEB interface. Examples: 10min, 1h, 1d, 2w, 6mon, 1y.
+      - LENPASTE_UI_DEFAULT_THEME=dark        # Sets the default theme for the WEB interface. Examples: dark, light.
+    volumes:
+      # /data/lenpaste.db - SQLite DB if used.
+      # /data/about       - About this server (TXT file).
+      # /data/rules       - This server rules (TXT file).
+      # /data/terms       - This server "terms of use" (TXT file).
+      # /data/themes/*    - External WEB interface themes.
+      # /data/lenpasswd   - If this file exists, the server will ask for auth to create new pastes.
+      #                     File format: USER:PLAIN_PASSWORD on each line.
+      - "./data:/data"
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    ports:
+      - "9091:80"
